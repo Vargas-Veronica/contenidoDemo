@@ -3,76 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Content</title>
+    <title>Simple Content Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
 <body>
-    <script type="module">
-        import { GoogleGenerativeAI } from "@google/generative-ai";
-    
-        // Reemplaza 'YOUR_API_KEY' con tu clave de API real
-        const API_KEY = 'AIzaSyDdrpgwx_Sqxwx4Yhrb4Nx0N90KnQJHp9U'; // Asegúrate de reemplazar esto con tu clave real
-        const genAI = new GoogleGenerativeAI(API_KEY);
-    
-        document.getElementById('generateButton').addEventListener('click', async () => {
-            const inputText = document.getElementById('inputText').value;
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest"});
-            const prompt = inputText;
-    
-            try {
-                const result = await model.generateContent(prompt);
-                document.getElementById('responseText').innerText = result.text;
-            } catch (error) {
-                console.error('Error al generar contenido:', error);
-                document.getElementById('responseText').innerText = 'Error al generar contenido.';
-            }
-        });
-    </script>
-    <h1>Generate Content</h1>
-    <form id="generateContentForm">
-        <label for="inputText">Input Text:</label>
-        <input type="text" id="inputText" name="inputText">
-        <button type="submit">Generate Content</button>
-    </form>
-
-    <h2>Generated Content</h2>
-    <p id="generatedText"></p>
-
-    <h1>Generate Story</h1>
-    <form id="generateStoryForm" enctype="multipart/form-data">
-        <label for="brand">Brand:</label>
-        <input type="text" id="brand" name="brand">
-        <label for="tone">Tone:</label>
-        <input type="text" id="tone" name="tone">
-        <label for="image">Upload Image:</label>
-        <input type="file" id="image" name="image">
-        <button type="submit">Generate Story</button>
-    </form>
-
-    <h2>Generated Story</h2>
-    <p id="generatedStory"></p>
+    <div class="container">
+        <h1>Simple Content Generator</h1>
+        <form id="contentForm">
+            <div>
+                <label for="brand">Brand:</label>
+                <input type="text" id="brand" name="brand" required>
+            </div>
+            <div>
+                <label for="tone">Tone:</label>
+                <input type="text" id="tone" name="tone" required>
+            </div>
+            <div>
+                <label for="image">Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+            </div>
+            <button type="submit">Generate Story</button>
+        </form>
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
 
     <script>
-        document.getElementById('generateContentForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const inputText = document.getElementById('inputText').value;
-            const response = await fetch('/generate-content', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ inputText })
-            });
-            const data = await response.json();
-            document.getElementById('generatedText').innerText = data.text;
-        });
-
-        document.getElementById('generateStoryForm').addEventListener('submit', async (event) => {
+        document.getElementById('contentForm').addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
+
             const response = await fetch('/generate-story', {
                 method: 'POST',
                 body: formData
             });
-            const data = await response.json();
-            document.getElementById('generatedStory').innerText = data.story;
+
+            const result = await response.json();
+            if (result.error) {
+                document.getElementById('result').innerHTML = `Error: ${result.error}`;
+            } else {
+                document.getElementById('result').innerHTML = `Generated Story: ${result.story}`;
+            }
+            document.getElementById('result').style.display = 'block';
         });
     </script>
 </body>

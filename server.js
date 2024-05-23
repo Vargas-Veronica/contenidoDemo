@@ -31,18 +31,6 @@ app.use(express.json());
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.post('/generate-content', async (req, res) => {
-    const { inputText } = req.body;
-    console.log('Received /generate-content request with inputText:', inputText);
-    try {
-        const generatedText = `Contenido generado para: ${inputText}`;
-        res.json({ text: generatedText });
-    } catch (error) {
-        console.error('Error in /generate-content:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
 app.post('/generate-story', upload.single('image'), async (req, res) => {
     const { brand, tone } = req.body;
     console.log('Received /generate-story request with:', { brand, tone });
